@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  username  String   @unique
+  password  String
+  role      String   @default("USER") // ADMIN | USER
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  messages Message[]
+  notes    Note[]
+}
+
+model Contact {
+  id            String         @id @default(cuid())
+  phone         String         @unique
+  name          String?
+  email         String?
+  notes         String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  conversations Conversation[]
+}
+
+model Conversation {
+  id                 String    @id @default(cuid())
+  contact            Contact   @relation(fields: [contactId], references: [id])
+  contactId          String
+  status             String    @default("OPEN")   // OPEN | RESOLVED
+  unreadCount        Int       @default(0)
+  lastMessageAt      DateTime?
+  lastMessagePreview String?
+  // Linked towne-parts RO
+  linkedRoId         String?
+  linkedRoNumber     String?
+  linkedCustomerName String?
+  linkedVehicle      String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  messages Message[]
+  notes    Note[]
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  conversationId String
+  body           String
+  direction      String       // INBOUND | OUTBOUND
+  status         String       @default("SENT") // SENT | DELIVERED | FAILED | RECEIVED
+  twilioSid      String?      @unique
+  sentBy         User?        @relation(fields: [sentById], references: [id])
+  sentById       String?
+  createdAt      DateTime     @default(now())
+
+  @@index([conversationId, createdAt])
+}
+
+model Note {
+  id             String       @id @default(cuid())
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  conversationId String
+  body           String
+  createdBy      User         @relation(fields: [createdById], references: [id])
+  createdById    String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([conversationId])
+}
+
+model Template {
+  id        String   @id @default(cuid())
+  name      String
+  body      String
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
