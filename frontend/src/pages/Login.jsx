@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { MessageSquare, Loader2 } from 'lucide-react'
 import { useAuth } from '../lib/auth'
+import ForgotPassword from '../components/ForgotPassword'
 
 export default function Login() {
   const { login } = useAuth()
@@ -67,6 +68,7 @@ export default function Login() {
             Sign In
           </button>
         </form>
+        <ForgotPassword />
       </div>
     </div>
   )

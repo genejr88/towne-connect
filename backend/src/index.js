@@ -7,6 +7,7 @@ app.use(cors())
 app.use(express.json())
 
 // Routes
+app.use('/api/auth/reset', require('./routes/passwordReset'))
 app.use('/api/auth',          require('./routes/auth'))
 app.use('/api/conversations', require('./routes/conversations'))
 app.use('/api/contacts',      require('./routes/contacts'))
